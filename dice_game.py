@@ -1,17 +1,50 @@
 import random
 
 # Constants
-GOAL = 21
+GAME_GOAL   = 21
 
-# States
-total_sum : int = 0
-game_continues : bool = True
+class Player():
+    def __init__(self, name):
+        self.name = name
 
-def dice_throw():
-    global total_sum
-    throw = random.randint(1,6)
-    total_sum += throw
-    print(f"Tärningskastet blev en {throw}:a. Totalsumma: {total_sum}")
+class Dice():
+    def __init__(self, sides = 6):
+        self.sides = sides
+    def throw(self):
+        return random.randint(1, self.sides)
+
+class Game():
+    def __init__(self):
+        self.isActive = True
+        self.dice = Dice()
+        self.total_sum = 0
+        self._players = []
+    def start(self):
+        if len(self._players) == 0:
+            self.addPlayer(Player())
+        while self.isActive:
+            diceResult = self.dice.throw()
+            self.total_sum += diceResult
+            print(f"Tärningskastet blev en {diceResult}:a. Totalsumma: {self.total_sum}")
+            if self.total_sum == GAME_GOAL:
+                print("Du vann!")
+                break
+            if self.total_sum > GAME_GOAL:
+                print("Du förlorade.")
+                break
+            if input_yesNo_se("Vill du kasta igen? (j/n)") == False:
+                break
+        self.end()
+
+    def addPlayer(self, player: Player):
+        self._players.insert(player)
+
+    def _onEnd(self):
+        print("// Spelet avslutades. //")
+
+    def end(self):
+        self.isActive = False
+        self._onEnd()
 
 def input_yesNo_se(message: str) -> bool:
     while True:
@@ -21,25 +54,8 @@ def input_yesNo_se(message: str) -> bool:
         elif inp == "n":
             return False
 
-def game_start():
-    global game_continues
-    while game_continues:
-        dice_throw()
-        if total_sum == GOAL:
-            print("Du vann!")
-            break
-        if total_sum > GOAL:
-            print("Du förlorade.")
-            break
-        if input_yesNo_se("Vill du kasta igen? (j/n)") == False:
-            break
-    game_continues = False
-
-def game_end():
-    print("// Spelet avslutades. //")
-
 def main():
-    game_start()
-    game_end()
+    game = Game()
+    game.start()
 
 main()
